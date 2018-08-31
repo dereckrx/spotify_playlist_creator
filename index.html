@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>My First App</title>
+	<link rel="stylesheet" href="sp://sounds/public/stylesheets/application.css">
+</head>
+<body>
+	<h1 id="header">MetroMix</h1>
+	<ul id="tracklist"></ul>
+	<script>
+		var weekdays = new Array(7);
+		weekdays[0]="sunday";
+		weekdays[1]="monday";
+		weekdays[2]="tuesday";
+		weekdays[3]="wednesday";
+		weekdays[4]="thursday";
+		weekdays[5]="friday";
+		weekdays[6]="saturday";
+		
+		var sp = getSpotifyApi();
+		var jquery = sp.require('jquery_1_8_2');
+		var api = sp.require('sp://sounds/spotify');
+		var models = sp.require('sp://import/scripts/api/models');
+	
+		var flightClass = $(this).data('class');
+		var day = weekdays[new Date().getDay()];
+		$.ajax("http://vente.dereckrx.com/"+day+".json", {
+			dataType: "json", // JSON + "Padding" to recieve JSON padded with JS 
+			success: function(data) {
+				artists = [];
+				console.log(" data: "+data);
+				data.forEach(function(d) {
+					a = d.data.djs.split(",").map(function(x){
+						return x.trim();
+					});
+					console.log(a);
+					$.merge(artists, a);
+				});
+				searchArtists(artists);
+			}
+		});
+		
+		var showResult = function(data) {
+			console.log(" data: "+data);
+			data.forEach(function(d) {
+				console.log(d);
+			});
+		}
+	
+		var searchArtists = function(artists) {
+			//var artists = ['The Stanton Warriors', 'Syd Gris', 'Delachaux'];
+			//var artists = ["Worthy", "Ardalan", "Dheeraj Sareen"]; // All work
+			//var artists = ["Dinky","Bells & Whistles","Miguel Solari", "Bai-ee", "Mark Farina"];
+			var results = [];
+		
+			artists.forEach(function(artist) {		
+				//artist = artist.replace("The", "");
+				var search = new models.Search("artist:"+artist);
+			
+				search.localResults = models.LOCALSEARCHRESULTS.APPEND;
+				search.searchAlbums = false
+				search.searchPlaylist = false
+
+				search.observe(models.EVENT.CHANGE, function() {
+					console.log("Artist: "+artist);
+					search.artists.forEach(function(a) {
+						console.log("  * "+a.name);
+					});
+					var sorted = search.tracks.sort(function(a, b) {
+						return b.popularity - a.popularity;
+					});
+					var added = false;
+					sorted.forEach(function(s, i) {
+						// for(var m in s.data) { // For viewing instide a JS object
+						// 		console.log("  "+m);
+						// 	}
+						s.artists.forEach(function(a) {
+							if(artist == a && added == false) {
+								console.log(artist+" == "+s.artists);
+								console.log("====> "+sorted[i].name+" --- "+sorted[i].artists[0]);
+								results.push(sorted[i]);
+								added = true;
+							}
+						});
+					});
+				});
+				search.appendNext();
+			});
+			results.forEach(function(r) {
+				$("#tracklist").append("<li><a href="+r.uri+">"+r.name+"</a></li>");
+				console.log(r.name+": "+r.uri);
+			});
+		};
+		api.init();
+	</script>
+</body>
+</html>

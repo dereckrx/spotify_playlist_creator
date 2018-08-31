@@ -1,0 +1,21 @@
+{
+	"AppDescription":{
+		"en": "My description"
+	},
+	"AppIcon":{
+		"18x18":"icon.png"
+	},
+	"AppName":{
+		"en": "Sounds"
+	},
+	"BundleIdentifier":"sounds",
+	"BundleType":"Application",
+	"BundleVersion":"0.0.1",
+	"SupportedLanguages":["en"],
+	"VendorIdentifier":"com.dereckrx.",
+	"RequiredPermissions": [
+		"http://*.spotify.com", 
+		"http://spotify.com",
+		"http://vente.dereckrx.com"
+	]
+}
